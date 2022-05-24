@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  nats:
+    container_name: nats
+    image: nats
+    ports:
+      - "8222:8222"
+    command: "--cluster_name NATS --cluster nats://0.0.0.0:6222 --http_port 8222 "
+    networks: ["nats"]
+    restart: always
+  postgres:
+    container_name: postgres
+    image: postgres:14.2
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    networks: ["nats"]
+
+  go:
+    container_name: go
+    build:
+      context: .
+    depends_on:
+      - nats
+      - postgres
+    ports:
+      - "3000:3000"
+    networks: ["nats"]
+
+volumes:
+  dbdata: # persist database
+networks:
+  nats:
+    name: nats
