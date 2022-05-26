@@ -1,11 +1,16 @@
-package main
+package server
 
 import (
+	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
-	"wildberriesL0/pkg/server"
 )
+
+type TemplateData struct {
+	Output string
+}
 
 func home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
@@ -19,11 +24,28 @@ func home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	uid := r.FormValue("search")
-	templateData := server.FindOrderInCache(uid, cache)
-	err = ts.Execute(w, templateData)
+	log.Println(uid)
+
+	log.Printf("Order from cache: %s", uid)
+	find, err := FindOrderInCache(uid)
 	if err != nil {
-		log.Println(err.Error())
-		http.Error(w, "Internal Server Error", 500)
+		err = ts.Execute(w, "")
+		if err != nil {
+			log.Println(err.Error())
+			http.Error(w, "Internal Server Error", 500)
+		}
+	} else {
+		ord, err := json.Marshal(find)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		Template := TemplateData{string(ord)}
+		err = ts.Execute(w, Template)
+		if err != nil {
+			log.Println(err.Error())
+			http.Error(w, "Internal Server Error", 500)
+		}
 	}
 
 }

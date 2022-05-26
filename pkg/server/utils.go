@@ -3,19 +3,23 @@ package server
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"wildberriesL0/pkg/models"
 )
 
-func FindOrderInCache(id string, cache map[string]models.Order) models.Order {
+func FindOrderInCache(id string) (models.Order, error) {
+	fmt.Println(id)
 	value, ok := cache[id]
+	log.Println("CACHE: ", value.UID, ok)
 	if ok {
-		return value
+		return value, nil
 	}
-	return models.Order{}
+	return models.Order{}, errors.New("Order not found")
 }
 
-func GetCache(db *sql.DB, cache map[string]models.Order) {
+func GetCache(db *sql.DB) {
 	rows, err := db.Query("select order_fields from orders where order_fields is not null")
 	if err != nil {
 		log.Fatalln("Error from query: ", err)
