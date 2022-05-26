@@ -3,7 +3,6 @@ package subscriber
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"github.com/nats-io/stan.go"
 	"log"
 	"wildberriesL0/pkg/models"
@@ -12,11 +11,11 @@ import (
 func Subscribe(db *sql.DB, cache map[string]models.Order) {
 	sc, err := stan.Connect("test-cluster", "subscriber", stan.NatsURL("subscriber://localhost:4222"))
 	if err != nil {
-		log.Println(err)
+		log.Printf("Connection error into stan: %s", err)
 	}
 
 	_, err = sc.Subscribe("orders", func(m *stan.Msg) {
-		fmt.Printf("Message: %s\n", string(m.Data))
+		log.Printf("Message: %s\n", string(m.Data))
 		var order models.Order
 		err := json.Unmarshal(m.Data, &order)
 		if err != nil {
@@ -34,7 +33,7 @@ func Subscribe(db *sql.DB, cache map[string]models.Order) {
 			log.Println("Insert into DB failed", err.Error())
 		}
 		cache[order.UID] = order
-		log.Println("Success")
+		log.Println("Order was created successfully")
 	})
 	if err != nil {
 		log.Fatalf("error: %s", err)

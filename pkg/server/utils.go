@@ -4,15 +4,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"wildberriesL0/pkg/models"
 )
 
 func FindOrderInCache(id string) (models.Order, error) {
-	fmt.Println(id)
 	value, ok := cache[id]
-	log.Println("CACHE: ", value.UID, ok)
 	if ok {
 		return value, nil
 	}
@@ -32,12 +29,12 @@ func GetCache(db *sql.DB) {
 		order := models.Order{}
 		err = rows.Scan(&row)
 		if err != nil {
-			log.Fatalln("Error with scan: ", err)
+			log.Fatalln("Error scan: ", err)
 		}
 
 		err = json.Unmarshal(row, &order)
 		if err != nil {
-			log.Fatalln("Error with unmarshal:", err)
+			log.Fatalln("Error unmarshal:", err)
 		}
 		cache[order.UID] = order
 	}

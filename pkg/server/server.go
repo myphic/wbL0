@@ -24,12 +24,11 @@ func home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	uid := r.FormValue("search")
-	log.Println(uid)
 
 	log.Printf("Order from cache: %s", uid)
 	find, err := FindOrderInCache(uid)
 	if err != nil {
-		err = ts.Execute(w, "")
+		err = ts.Execute(w, "Order not found")
 		if err != nil {
 			log.Println(err.Error())
 			http.Error(w, "Internal Server Error", 500)

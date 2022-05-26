@@ -24,7 +24,7 @@ func NewClient() *sql.DB {
 	)
 	conn, err := sql.Open("postgres", connStr)
 	if err != nil {
-		fmt.Errorf("Unable to connect to database: %v\n", err)
+		log.Fatalf("Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
 
