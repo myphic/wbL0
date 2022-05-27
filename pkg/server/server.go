@@ -25,12 +25,11 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 	uid := r.FormValue("search")
 
-	log.Printf("Order from cache: %s", uid)
 	find, err := FindOrderInCache(uid)
 	if err != nil {
 		err = ts.Execute(w, "Order not found")
 		if err != nil {
-			log.Println(err.Error())
+			log.Printf("Error with parse the file: %s", err.Error())
 			http.Error(w, "Internal Server Error", 500)
 		}
 	} else {
@@ -39,10 +38,11 @@ func home(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err.Error())
 			return
 		}
+		log.Printf("Order from cache: %s", uid)
 		Template := TemplateData{string(ord)}
 		err = ts.Execute(w, Template)
 		if err != nil {
-			log.Println(err.Error())
+			log.Printf("Error with parse the file: %s", err.Error())
 			http.Error(w, "Internal Server Error", 500)
 		}
 	}
